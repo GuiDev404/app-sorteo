@@ -1,32 +1,59 @@
+import { useForm } from 'react-hook-form';
+import readXlsxFile from 'read-excel-file';
+
 import Button from './Button';
 import Emoji from './Emoji';
 import { TrashIcon } from './Icons';
-import ListOfParticipantes from './ListOfParticipantes';
+import Input from './Input';
+import Textarea from './Textarea';
 
-const Form = ({
-  participantes,
-  premio,
-  ganadores,
-  handleSubmitSorteo,
-  participantesRawValue,
-  handleChangeParticipantes,
-  handleRemoveParticipante,
-  handleChangePremio,
-  handleChangeGanadores,
-  handleClearAll,
-  handleImportFromFile
-}) => {
- 
-  const noParticipantes = participantes.length
+const IS_REQUIRED = { 
+  required: { 
+    value: true,
+    message: 'El campo es requerido'
+  }
+}
+
+const VALIDATION_CANTIDAD = { 
+  required: IS_REQUIRED.required,
+  valueAsNumber: true,
+  validate: {
+    valid: (cantidadInput, formValues)=> {
+      const cantidadDeParticipantes = formValues.participantes.split(',').filter(Boolean).length
+
+      return cantidadInput < cantidadDeParticipantes || 'Debe ser menor a la cantidad de participantes'
+    }
+  }
+}
+
+const VALIDATION_PARTICIPANTES = {
+  required: IS_REQUIRED.required,
+  validate: {
+    cantidad_valida: (p) => p.split(',').filter(Boolean).length > 1 || 'Debe haber 2 o mas participantes.',
+  },
+};
+
+const Form = ({ onSubmit }) => {
+  const { handleSubmit, reset, register, formState: { errors }, setValue } = useForm();
+
+  const handleOnSubmit = (data) => onSubmit(data);
+
+  const handleClearAll = ()=> reset()
+
+  const handleImportFromFile = (e) => {
+    readXlsxFile(e.target.files[0])
+      .then((rows) => {
+        const participantesInString = rows.flat(1).join(', ');
+        setValue('participantes', participantesInString)
+        e.target.value = '';
+      })
+      .catch(console.log);
+  };
 
   return (
-    <form
-      className='flex flex-col text-white'
-      id='form-sorteo'
-      onSubmit={handleSubmitSorteo}
-    >
+    <>
       <header className='flex sm:flex-nowrap items-center justify-between flex-wrap'>
-        <label htmlFor='participantes' className='text-xl font-bold mt-4 mb-2'>
+        <label htmlFor='participantes' className='font-bold mt-4 mb-1'>
           Participantes
         </label>
 
@@ -46,81 +73,51 @@ const Form = ({
           />
         </div>
       </header>
-
-      <textarea
-        id='participantes'
-        className='p-3 border border-neutral-700 rounded-md bg-neutral-800  max-h-40 min-h-40 h-40 resize-none'
-        cols='30'
-        rows='10'
-        placeholder='Carlos, Maria, Pedro...'
-        value={participantesRawValue}
-        onChange={handleChangeParticipantes}
-      ></textarea>
-
-      <section
-        className={`my-2 p-2 bg-neutral-800 rounded-md border border-neutral-700 flex flex-wrap items-center ${noParticipantes === 0 ? 'justify-center' : 'justify-start'}`}
+    
+      <form
+        onSubmit={handleSubmit(handleOnSubmit)}
+        className='flex flex-col gap-5'
       >
-        {noParticipantes ? (
-          <ListOfParticipantes
-            participantes={participantes}
-            removeParticipante={handleRemoveParticipante}
-          />
-        ) : (
-          <label
-            className='text-center uppercase text-sm text-slate-500 p-2 gap-2'
-            htmlFor='participantes'
-          >
-            <span> + agrega al menos 2 participantes </span>
-          </label>
-        )}
-      </section>
-
-      <div className='my-4'>
-        <label htmlFor='premio' className='text-xl font-bold mb-2 inline-block'>
-          Premio
-        </label>
-        <input
-          type='text'
-          id='premio'
+        <Textarea 
+          register={register}
+          name='participantes'
+          className='max-h-[200px]'
+          validation={VALIDATION_PARTICIPANTES}
+          placeholder='Carlos, Marcos, Pedro, Josefina'
+          errors={errors}
+        />
+      
+        <Input
           placeholder='Ingrese el premio'
-          className='p-3 bg-neutral-800 rounded-md border border-neutral-700 block w-full'
-          onChange={handleChangePremio}
-          value={premio}
+          register={register}
+          name='premio'
+          validation={IS_REQUIRED}
+          errors={errors}
+          label='Premio'
         />
-      </div>
-
-      <div className='my-4'>
-        <label
-          htmlFor='ganadores'
-          className='text-xl font-bold mb-2 inline-block'
-        >
-          Ganadores
-        </label>
-        <input
+        
+        <Input
           type='number'
-          id='ganadores'
-          min={1}
-          disabled={noParticipantes < 2}
-          max={participantes.length}
           placeholder='Ingrese la cantidad de ganadores'
-          className='p-3  bg-neutral-800 rounded-md border border-neutral-700 block w-full disabled:text-slate-400 disabled:cursor-not-allowed'
-          onChange={handleChangeGanadores}
-          value={ganadores}
+          min={1}
+          max={3}
+          register={register}
+          name='cantidad_ganadores'
+          validation={VALIDATION_CANTIDAD}
+          errors={errors}
+          className='disabled:text-slate-400 disabled:cursor-not-allowed'
+          label='Cantidad de ganadores'
         />
 
-        <p className='text-neutral-400 mt-1 text-sm'> Tiene que haber al menos 2 participantes </p>
-      </div>
-
-      <Button
-        disabled={!noParticipantes}
-        type='submit'
-        form='form-sorteo'
-        styles='bg-blue-600 disabled:bg-blue-500 disabled:cursor-not-allowed text-white block w-full sm:inline-block sm:w-60 py-2 text-xl '
-      >
-        Sortear
-        <Emoji label='ganador' emoji='✨🎉🎊' />
-      </Button>
-    </form>
+        <Button
+          type='submit'
+          styles='bg-blue-600 disabled:bg-blue-500 disabled:cursor-not-allowed text-white block w-full sm:inline-block sm:w-60 py-2 text-xl '
+        >
+          Sortear
+          <Emoji label='ganador' emoji='✨🎉🎊' />
+        </Button>
+      </form>
+    </>
   );
 };
 

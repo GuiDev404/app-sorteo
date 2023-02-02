@@ -1,4 +1,3 @@
-[ ] errores a los inputs 
-[ ] usar use hoook form
-[ ] acomodar intarfaz
+[x] usar use hoook form (en otra rama)
+[x] acomodar intarfaz
 [ ] agregarle dark/light mode + localStorage

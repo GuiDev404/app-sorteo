@@ -18,7 +18,7 @@ const Modal = ({ show = false, children, className, size, reference }) => {
         <div className='fixed backdrop-blur-sm bg-neutral-800 bg-opacity-80 top-0 left-0 w-full h-full items-center justify-center flex'>
           <div
             ref={reference}
-            className={`rounded-md w-2/4 bg-white h-56 ${className}`}
+            className={`rounded-md w-2/4 bg-neutral-800 border border-neutral-700 h-56 ${className}`}
           >
             {children}
           </div>

@@ -1,6 +1,5 @@
-import React, { useReducer, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import ReactCanvasConfetti from 'react-canvas-confetti';
-import readXlsxFile from 'read-excel-file';
 
 import { XIcon } from './components/Icons';
 import Modal, { ModalHeader, ModalContent } from './components/Modal';
@@ -15,62 +14,43 @@ import useScreenshoot from './hooks/useScreenshoot';
 import useToggle from './hooks/useToggle';
 
 import { toCapitalize, randomItems, conjuntionString } from './utils';
-import { DEF_SORTEO_STATE, sorteoReducer, TYPES } from './reducer/sorteoReducer';
+
+const INITIAL_SORTEO = {
+  ganador: '', premio: '', ganadores: []
+}
 
 function App() {
-  const [sorteo, dispatch] = useReducer(sorteoReducer, DEF_SORTEO_STATE);
   const { ref, imgURL, takeScreenshoot } = useScreenshoot();
   const { stopAnimation, startAnimation, getInstance } = useConfetti();
 
-  const { participantes, ganador, premio, ganadores, participantesRawValue } = sorteo;
-
   const [bool, toggle] = useToggle();
 
-  const handleSorteo = (e) => {
-    e.preventDefault();
+  const [ { ganador, premio, ganadores }, setSorteo ] = useState(INITIAL_SORTEO)
 
-    if (participantes.length > 1) {
-      const participantesGanadores = randomItems([...participantes], ganadores);
+  const onSubmit = data => {
+    const participantes = [...data.participantes.split(',')]
+    const ganadores = randomItems(participantes, data.cantidad_ganadores)
+    
+    const namesCapitalizes = ganadores.map(toCapitalize);
+    const ganadoresFormateado = conjuntionString(namesCapitalizes);
 
-      startAnimation();
+    setSorteo({
+      ganadores,
+      ganador: ganadoresFormateado,
+      premio: data.premio
+    })
 
-      const namesCapitalizes = participantesGanadores.map(toCapitalize);
-      const ganadoresFormateado = conjuntionString(namesCapitalizes);
-
-      dispatch({ type: TYPES.SET_GANADOR, payload: ganadoresFormateado });
-      toggle();
-    }
+    startAnimation();
+    toggle()
   };
-
-  const handleChangeParticipantes = (e) => dispatch({ type: TYPES.SET_PARTICIPANTES, payload: e.target.value });
-
-  const handleRemoveParticipante = useCallback(participante =>
-      dispatch({ type: TYPES.REMOVE_PARTICIPANTE, payload: participante }),
-  []);
-
-  const handleChangePremio = (e) =>  dispatch({ type: TYPES.SET_PREMIO, payload: e.target.value });
-  const handleChangeGanadores = (e) => dispatch({ type: TYPES.SET_GANADORES, payload: e.target.value });
-
-  const handleClearAll = () => dispatch({ type: TYPES.CLEAR_ALL });
-
-  const handleImportFromFile = (e) => {
-    readXlsxFile(e.target.files[0])
-      .then((rows) => {
-        console.log(rows);
-        const participantesStr = rows.flat(1).join(', ');
-        dispatch({ type: TYPES.SET_PARTICIPANTES, payload: participantesStr });
-        e.target.value = '';
-      })
-      .catch(console.log);
-  };
-
+ 
   const clearGanador = useCallback(() => {
     if (ref.current === null) return;
 
     takeScreenshoot()
       .then(() => {
         stopAnimation();
-        dispatch({ type: TYPES.SET_GANADOR, payload: '' });
+        setSorteo(INITIAL_SORTEO)
         toggle();
       })
       .catch(console.error);
@@ -84,20 +64,10 @@ function App() {
       />
 
       <main className='my-10'>
-        <Form
-          participantesRawValue={participantesRawValue}
-          participantes={participantes}
-          ganadores={ganadores}
-          premio={premio}
-          handleSubmitSorteo={handleSorteo}
-          handleChangeParticipantes={handleChangeParticipantes}
-          handleRemoveParticipante={handleRemoveParticipante}
-          handleChangePremio={handleChangePremio}
-          handleChangeGanadores={handleChangeGanadores}
-          handleClearAll={handleClearAll}
-          handleImportFromFile={handleImportFromFile}
+        <Form 
+          onSubmit={onSubmit}
         />
-
+  
         {Boolean(imgURL) && <Screenshoot imgURL={imgURL} />}
       </main>
 
@@ -117,12 +87,12 @@ function App() {
         </ModalHeader>
 
         <ModalContent>
-          <div className='rounded-lg text-black p-4 '>
+          <div className='rounded-lg text-white p-4 '>
             <h2 className='font-bold text-3xl'>
               Felicitaciones {ganador} <Emoji emoji='🎉🎊' label='confetti' />
             </h2>
-            <p className='text-zinc-400 font-semibold text-xl'>
-              {ganadores > 1 ? 'Ganaron' : 'Ganaste'} {premio}
+            <p className='text-neutral-400 font-semibold text-xl'>
+              {ganadores.length > 1 ? 'Ganaron' : 'Ganaste'} {premio}
             </p>
           </div>
         </ModalContent>
