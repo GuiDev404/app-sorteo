@@ -7,9 +7,9 @@ const ListOfParticipantes = ({ participantes, removeParticipante }) => {
 
   return participantes.map((participante) => (
       <ButtonWithIcon
-        icon={<TrashIcon className='absolute bottom-10 transition-all ease-in duration-200' />}
+        icon={<TrashIcon className='absolute  bottom-10 transition-all ease-in duration-200' />}
         key={participante}
-        styles="grid place-items-center overflow-hidden m-1 text-white bg-slate-400 relative text-sm before:content-[''] hover:before:w-full hover:before:h-full hover:before:bg-red-700 hover:before:bg-opacity-75 hover:before:absolute hover:before:top-0 hover:before:left-0 hovered"
+        styles="grid place-items-center overflow-hidden m-1 text-white bg-neutral-600 relative text-sm before:content-[''] hover:before:w-full hover:before:h-full hover:before:bg-red-700 hover:before:bg-opacity-75 hover:before:absolute hover:before:top-0 hover:before:left-0 hovered"
         onClick={handleRemoveParticipante(participante)}
       >
         {participante}
@@ -18,4 +18,4 @@ const ListOfParticipantes = ({ participantes, removeParticipante }) => {
   
 }
 
-export default ListOfParticipantes
+export default React.memo(ListOfParticipantes)

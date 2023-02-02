@@ -1,8 +1,0 @@
-// errores o alertas 
-// usar use hoook form
-// ver si se puede reutilizar algun estado para evitar otros
-// acomodar intarfaz
-
-
-ESTO LO PASE A LA OTRA APP
-PASAR ALGUNAS CARACTERISTICAS A LA OTRA CARGAR XLSX 

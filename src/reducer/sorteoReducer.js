@@ -9,7 +9,7 @@ export const TYPES = {
 
 export const DEF_SORTEO_STATE = {
   participantes: [],
-  participantesStr: '',
+  participantesRawValue: '',
   ganador: '',
   premio: '',
   ganadores: 1,
@@ -32,7 +32,7 @@ export const sorteoReducer = (state, action)=> {
 
       return {
         ...state,
-        participantesStr: action.payload,
+        participantesRawValue: action.payload,
         participantes: parcipantesSinRepetidos
       }
     },
@@ -42,14 +42,14 @@ export const sorteoReducer = (state, action)=> {
       return {  
         ...state,
         participantes: participantesUpdated,
-        participantesStr: participantesUpdated.join(', ')
+        participantesRawValue: participantesUpdated.join(', ')
       }
     },
     [TYPES.CLEAR_ALL]: ()=> {
       return {
         ...state,
         participantes: [],
-        participantesStr: '',
+        participantesRawValue: '',
       }
     },
     [TYPES.SET_GANADOR]: ()=> ({...state, ganador: action.payload }),

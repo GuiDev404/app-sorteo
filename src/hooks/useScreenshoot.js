@@ -17,7 +17,6 @@ export default function useScreenshoot (){
   const takeScreenshoot = async ()=> {
     const dataURL = await toPng(ref.current, { cacheBust: true, filter: filterElements })
     setImgURL(dataURL)
-    return;
   }
 
   const clearURL = ()=> setImgURL('')
