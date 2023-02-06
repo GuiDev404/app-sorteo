@@ -101,7 +101,7 @@ function App() {
         {Boolean(imgURL) && <Screenshoot imgURL={imgURL} />}
       </main>
 
-      <Modal show={bool} reference={ref}>
+      <Modal show={bool} reference={ref} className='border border-neutral-700 bg-neutral-800 text-white'>
         <ReactCanvasConfetti
           refConfetti={getInstance}
           className='fixed w-full h-full top-0 left-0 pointer-events-none'
@@ -109,7 +109,7 @@ function App() {
 
         <ModalHeader className='flex justify-end'>
           <Button
-            className=' rounded-md bg-black bg-opacity-80 text-white p-2 m-2 btn-non-visible'
+            className=' rounded-md bg-zinc-900 bg-opacity-80 text-white p-2 m-2 btn-non-visible'
             onClick={clearGanador}
           >
             <XIcon width={18} height={18} />
@@ -117,13 +117,15 @@ function App() {
         </ModalHeader>
 
         <ModalContent>
-          <div className='rounded-lg text-black p-4 '>
+          <div className='rounded-lg p-4 '>
             <h2 className='font-bold text-3xl'>
               Felicitaciones {ganador} <Emoji emoji='🎉🎊' label='confetti' />
             </h2>
-            <p className='text-zinc-400 font-semibold text-xl'>
-              {ganadores > 1 ? 'Ganaron' : 'Ganaste'} {premio}
-            </p>
+            {ganadores && 
+              <p className='text-zinc-400 font-semibold text-xl'>
+                {ganadores > 1 ? 'Ganaron' : 'Ganaste'} {premio || 'el sorteo'}
+              </p>
+            }
           </div>
         </ModalContent>
       </Modal>
