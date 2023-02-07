@@ -5,6 +5,7 @@ export const TYPES = {
   SET_GANADOR: 'SET_GANADOR',
   SET_PREMIO: 'SET_PREMIO',
   SET_GANADORES: 'SET_GANADORES',
+  SET_ERRORES: 'SET_ERRORES',
 }
 
 export const DEF_SORTEO_STATE = {
@@ -13,10 +14,12 @@ export const DEF_SORTEO_STATE = {
   ganador: '',
   premio: '',
   ganadores: 1,
-  hasGanadores: false
+  hasGanadores: false,
+  error: ''
 }
 
 export const sorteoReducer = (state, action)=> {
+
   const ACTIONS =  {
     [TYPES.SET_PARTICIPANTES]: ()=> {
       const participantes = action.payload
@@ -24,7 +27,7 @@ export const sorteoReducer = (state, action)=> {
         .map((participante) => participante.trim())
         .filter(Boolean);
 
-      const parcipantesSinRepetidos = [
+      const participantesSinRepetidos = [
         ...new Set(
           participantes.map((participante) => participante.toLowerCase())
         ),
@@ -33,7 +36,7 @@ export const sorteoReducer = (state, action)=> {
       return {
         ...state,
         participantesRawValue: action.payload,
-        participantes: parcipantesSinRepetidos
+        participantes: participantesSinRepetidos
       }
     },
     [TYPES.REMOVE_PARTICIPANTE]: ()=> {
@@ -58,6 +61,10 @@ export const sorteoReducer = (state, action)=> {
     },
     [TYPES.SET_GANADORES]: ()=> {
       return {...state, ganadores: action.payload }
+    },
+    [TYPES.SET_ERRORES]: ()=> {
+
+      return {...state, error: action.payload }
     }
   }
 

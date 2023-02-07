@@ -14,10 +14,12 @@ const Form = ({
   handleChangePremio,
   handleChangeGanadores,
   handleClearAll,
-  handleImportFromFile
+  handleImportFromFile,
+  error
 }) => {
  
-  const noParticipantes = participantes.length
+  const cantidadParticipantes = participantes.length
+  const hayParticipantes = cantidadParticipantes > 0
 
   return (
     <form
@@ -25,6 +27,7 @@ const Form = ({
       id='form-sorteo'
       onSubmit={handleSubmitSorteo}
     >
+ 
       <header className='flex sm:flex-nowrap items-center justify-between flex-wrap'>
         <label htmlFor='participantes' className='text-xl font-bold mt-4 mb-2'>
           Participantes
@@ -47,6 +50,7 @@ const Form = ({
         </div>
       </header>
 
+
       <textarea
         id='participantes'
         className='p-3 border border-neutral-700 rounded-md bg-neutral-800  max-h-40 min-h-40 h-40 resize-none'
@@ -58,9 +62,9 @@ const Form = ({
       ></textarea>
 
       <section
-        className={`my-2 p-2 bg-neutral-800 rounded-md border border-neutral-700 flex flex-wrap items-center ${noParticipantes === 0 ? 'justify-center' : 'justify-start'}`}
+        className={`my-2 p-2 bg-neutral-800 rounded-md border border-neutral-700 flex flex-wrap items-center ${hayParticipantes ? 'justify-start' : 'justify-center'}`}
       >
-        {noParticipantes ? (
+        {hayParticipantes ? (
           <ListOfParticipantes
             participantes={participantes}
             removeParticipante={handleRemoveParticipante}
@@ -100,19 +104,20 @@ const Form = ({
           type='number'
           id='ganadores'
           min={1}
-          disabled={noParticipantes < 2}
-          max={participantes.length}
+          disabled={cantidadParticipantes < 2}
+          max={3}
           placeholder='Ingrese la cantidad de ganadores'
           className='p-3  bg-neutral-800 rounded-md border border-neutral-700 block w-full disabled:text-slate-400 disabled:cursor-not-allowed'
           onChange={handleChangeGanadores}
           value={ganadores}
         />
 
-        <p className='text-neutral-400 mt-1 text-sm'> Tiene que haber al menos 2 participantes </p>
+        <p className='text-neutral-400 mt-1 text-xs'> * Tiene que haber al menos 2 participantes </p>
       </div>
+        <p className='text-red-400 text-sm my-4'> {error} </p>
 
       <Button
-        disabled={!noParticipantes}
+        disabled={!hayParticipantes}
         type='submit'
         form='form-sorteo'
         styles='bg-blue-600 disabled:bg-blue-500 disabled:cursor-not-allowed text-white block w-full sm:inline-block sm:w-60 py-2 text-xl '

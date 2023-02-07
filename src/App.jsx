@@ -22,14 +22,27 @@ function App() {
   const { ref, imgURL, takeScreenshoot } = useScreenshoot();
   const { stopAnimation, startAnimation, getInstance } = useConfetti();
 
-  const { participantes, ganador, premio, ganadores, participantesRawValue } = sorteo;
+  const { participantes, ganador, premio, ganadores, participantesRawValue, error } = sorteo;
 
   const [bool, toggle] = useToggle();
 
   const handleSorteo = (e) => {
     e.preventDefault();
 
-    if (participantes.length > 1) {
+    const cantidadParticipantes = participantes.length;
+
+    if(parseInt(ganadores, 10) >= cantidadParticipantes) {
+      dispatch({ 
+        type: TYPES.SET_ERRORES,
+        payload: `
+          La cantidad de ganadores (${ganadores}) debe ser menor a la cantidad de participantes (${cantidadParticipantes})
+        `
+      });
+
+      return
+    }
+
+    if (cantidadParticipantes > 1) {
       const participantesGanadores = randomItems([...participantes], ganadores);
 
       startAnimation();
@@ -39,7 +52,12 @@ function App() {
 
       dispatch({ type: TYPES.SET_GANADOR, payload: ganadoresFormateado });
       toggle();
-    }
+
+      dispatch({ 
+        type: TYPES.SET_ERRORES,
+        payload: ''
+      })
+    } 
   };
 
   const handleChangeParticipantes = (e) => dispatch({ type: TYPES.SET_PARTICIPANTES, payload: e.target.value });
@@ -76,6 +94,8 @@ function App() {
       .catch(console.error);
   }, [ref]);
 
+
+
   return (
     <div className='max-w-[800px] w-[80%] mx-auto my-12 font-sans'>
       <Header
@@ -96,6 +116,7 @@ function App() {
           handleChangeGanadores={handleChangeGanadores}
           handleClearAll={handleClearAll}
           handleImportFromFile={handleImportFromFile}
+          error={error}
         />
 
         {Boolean(imgURL) && <Screenshoot imgURL={imgURL} />}
